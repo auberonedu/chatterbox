@@ -225,6 +225,16 @@ public class ChatterboxClient {
         
         serverWriter.write(username + " " + password);
         serverWriter.flush();
+
+        String response = serverReader.readLine();
+        if(response == null) {
+            throw new IOException("Server didn't reply.");
+        }
+
+        String errorCatch = response.toLowerCase();
+        if(errorCatch.contains("error")) {
+            throw new IllegalArgumentException(response);
+        }
     }
 
     /**
