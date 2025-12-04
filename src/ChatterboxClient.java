@@ -127,6 +127,19 @@ public class ChatterboxClient {
     public static ChatterboxOptions parseArgs(String[] args) throws IllegalArgumentException {
         // TODO: read args in the required order and return new ChatterboxOptions(host, port, username, password)
         // Remove this exception
+
+        // expects 4 arguments or throws error 
+        if (args.length != 4) {
+            throw new IllegalArgumentException("Expected 4 arguments: HOST PORT USERNAME PASSWORD");
+        }
+
+        // assign arguments to variables in required order 
+        String host = args[0];
+        int port = Integer.parseInt(args[1]); // parse port to int
+        String username = args[2];
+        String password = args[3];
+
+
         throw new UnsupportedOperationException("Argument parsing not yet implemented. Implement parseArgs and remove this exception");
     }
 
