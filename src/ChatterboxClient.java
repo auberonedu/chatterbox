@@ -134,8 +134,12 @@ public class ChatterboxClient {
         String password = args[3];
 
         if(port < 1 || port > 65535) {
-            throw new IllegalArgumentException("Port was not passed in as a int between 1 & 65535.");
+            throw new IllegalArgumentException("Port was not passed in as a number between 1 & 65535.");
         }
+
+        ChatterboxOptions options = new ChatterboxOptions(host, port, username, password);
+
+        return options;
 
     }
 
