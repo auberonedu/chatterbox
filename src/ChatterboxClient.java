@@ -194,9 +194,6 @@ public class ChatterboxClient {
             System.out.println("Socket failed to be constructed.");
             return;
         }
-
-        // Make sure to have this.serverReader and this.serverWriter set by the end of this method!
-        // hint: get the streams from the sockets, use those to create the InputStreamReader/OutputStreamWriter and the BufferedReader/BufferedWriter
     }
 
     /**
@@ -220,9 +217,14 @@ public class ChatterboxClient {
      * @throws IllegalArgumentException for bad credentials / server rejection
      */
     public void authenticate() throws IOException, IllegalArgumentException {
-        throw new UnsupportedOperationException("Authenticate not yet implemented. Implement authenticate() and remove this exception!");
-        // Hint: use the username/password instance variables, DO NOT READ FROM userInput
-        // send messages using serverWriter (don't forget to flush!)
+        String initialPrompt = serverReader.readLine();
+        while(initialPrompt != null && initialPrompt.length() > 0) {
+            userOutput.write(initialPrompt.getBytes());
+            initialPrompt = serverReader.readLine();
+        }
+        
+        serverWriter.write(username + " " + password);
+        serverWriter.flush();
     }
 
     /**
