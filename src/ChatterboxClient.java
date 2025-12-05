@@ -289,10 +289,21 @@ public class ChatterboxClient {
      * - If writing fails (IOException), the connection is gone:
      *   print a message to userOutput and exit.
      */
-    public void sendOutgoingChats() {
+    public void sendOutgoingChats() throws IOException {
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
+        try{
+            while(true){
+                String input = userInput.nextLine();
+                userOutput.write((input + "\n").getBytes(StandardCharsets.UTF_8));
+                userOutput.flush();
+            }
+        }finally{
+            userOutput.write("Disconnected from server\n".getBytes(StandardCharsets.UTF_8));
+            userOutput.flush();
+            System.exit(1);
+        }
     }
 
     public String getHost() {
