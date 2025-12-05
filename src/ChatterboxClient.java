@@ -140,10 +140,7 @@ public class ChatterboxClient {
         // TODO: read args in the required order and return new ChatterboxOptions(host, port, username, password)
        
         return chatterboxOptions;
-        
 
-        // TODO: read args in the required order and return new ChatterboxOptions(host, port, username, password)
-        // Remove this exception
        
     }
 
@@ -163,8 +160,13 @@ public class ChatterboxClient {
         this.userInput = new Scanner(userInput, StandardCharsets.UTF_8);
         this.userOutput = userOutput;
 
-        throw new UnsupportedOperationException("Constructor not yet implemented. Implement ChatterboxClient constructor and remove this exception");
-        // TODO: copy options.getHost(), getPort(), getUsername(), getPassword() into fields
+         // TODO: copy options.getHost(), getPort(), getUsername(), getPassword() into fields
+
+        this.host = options.getHost();
+        this.port = options.getPort();
+        this.username = options.getUsername();
+        this.password = options.getPassword();    
+       
     }
 
     /**
