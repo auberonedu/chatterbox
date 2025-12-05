@@ -252,12 +252,25 @@ public class ChatterboxClient {
         // throw new UnsupportedOperationException("Authenticate not yet implemented. Implement authenticate() and remove this exception!");
         // Hint: use the username/password instance variables, DO NOT READ FROM userInput
         // send messages using serverWriter (don't forget to flush!)
-        System.out.println(serverReader.readLine());
+        
+        // Read and display any messages from the server
+        userOutput.write((serverReader.readLine() + "\n").getBytes(StandardCharsets.UTF_8));
+        userOutput.flush();
         
         // Write the username and password to the server and flush
         serverWriter.write(this.username + " " + this.password + "\n");
-        serverWriter.newLine();
         serverWriter.flush();
+
+        // Server response
+        String serverResponse = serverReader.readLine();
+
+        // Read any messages coming from the server
+        if (serverResponse.startsWith("Welcome")){
+            // Write the welcome message to the output
+            userOutput.write((serverResponse + "\n").getBytes(StandardCharsets.UTF_8));
+            userOutput.flush();
+            return;
+        } else { throw new IllegalArgumentException(serverResponse); }
     }
 
     /**
@@ -274,6 +287,7 @@ public class ChatterboxClient {
      */
     public void streamChat() throws IOException {
         throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        // printIncomingChats();
     }
 
     /**
