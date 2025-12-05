@@ -325,7 +325,7 @@ public class ChatterboxClient {
                 // Check for null res
                 if (res == null) {
                     writeUserOutput("Server disconnected.");
-                    System.exit(0);
+                    System.exit(1);
                 }
 
                 // Not null, write to user output and flush
@@ -334,9 +334,9 @@ public class ChatterboxClient {
                 try {
                     writeUserOutput("Connection lost.");
                 } catch (IOException f) {
-                    System.exit(0);
+                    System.exit(1);
                 } finally {
-                    System.exit(0);
+                    System.exit(1);
                 }
             }
         }
@@ -367,6 +367,30 @@ public class ChatterboxClient {
     public void sendOutgoingChats() {
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
+        while (true) {
+            if (userInput.hasNextLine()) {
+                // Store the line the user inputted
+                String input = userInput.nextLine();
+
+                // Try to write the message to the server
+                try {
+                    serverWriter.write((input + "\n"));
+                    serverWriter.flush();
+                } catch (IOException e) {
+                    // Error writing to server, connection lost
+                    // Try to write to the user what has happened
+                    try {
+                        writeUserOutput("Connection is gone.");
+                    } catch (IOException f) {
+                        // Exit the system if another IOException is met writing to the user
+                        System.exit(1);
+                    } finally {
+                        // Exit anyways
+                        System.exit(1);
+                    }
+                }
+            }
+        }
     }
 
     public String getHost() {
