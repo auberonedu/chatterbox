@@ -154,6 +154,7 @@ public class ChatterboxClient {
 
     /**
      * A helper method that checks if a number is in range of two given numbers
+     * 
      * @param min the minimum integer value
      * @param max the max integer value
      * @param num the number to check if in range
