@@ -258,11 +258,33 @@ public class ChatterboxClient {
      * @throws IllegalArgumentException for bad credentials / server rejection
      */
     public void authenticate() throws IOException, IllegalArgumentException {
-        throw new UnsupportedOperationException(
-                "Authenticate not yet implemented. Implement authenticate() and remove this exception!");
+        // throw new UnsupportedOperationException(
+        // "Authenticate not yet implemented. Implement authenticate() and remove this
+        // exception!");
         // Hint: use the username/password instance variables, DO NOT READ FROM
         // userInput
         // send messages using serverWriter (don't forget to flush!)
+
+        // print the servers first line if it has one
+        System.out.println(serverReader.readLine());
+
+        // send the username and password to the server
+        serverWriter.write(this.username + " " + this.password);
+        serverWriter.newLine();
+        // the flush is important to make sure the data is sent
+        serverWriter.flush();
+
+        // read the server reply
+        String reply = serverReader.readLine();
+
+        // check if the reply starts with welcome if not we throw an exception
+        if (!reply.startsWith("Welcome")) {
+            throw new IllegalArgumentException(reply);
+        }
+
+        // if we are here it means we are authenticated so we print the welcome message
+        System.out.println(reply);
+
     }
 
     /**
