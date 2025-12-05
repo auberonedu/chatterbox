@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
+import javax.imageio.IIOException;
+
 /**
  * A simple command-line chat client for the Chatterbox server.
  *
@@ -214,8 +216,7 @@ public class ChatterboxClient {
      */
     public void authenticate() throws IOException, IllegalArgumentException {
         String initialPrompt = serverReader.readLine();
-        userOutput.write((initialPrompt).getBytes());
-        userOutput.flush();
+        printToUser(initialPrompt);
 
         this.serverWriter.write(this.username + " " + this.password + "\n");
         this.serverWriter.flush();
@@ -231,12 +232,10 @@ public class ChatterboxClient {
             throw new IllegalArgumentException(response);
         }
 
-        userOutput.write(response.getBytes());
-        userOutput.flush();
+        printToUser(response);
 
         while ((response = serverReader.readLine()) != null && response.length() > 0) {
-            userOutput.write(response.getBytes());
-            userOutput.flush();
+            printToUser(response);
         }
 
     }
@@ -253,8 +252,8 @@ public class ChatterboxClient {
      *
      * @throws IOException
      */
-    public void streamChat() throws IOException {
-        throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+    public void streamChat() throws IOException { 
+        printIncomingChats();
     }
 
     /**
@@ -272,8 +271,20 @@ public class ChatterboxClient {
      *   print a message to userOutput and exit.
      */
     public void printIncomingChats() {
-        // Listen on serverReader
-        // Write to userOutput, NOT System.out
+        try {
+            String incoming;
+            while((incoming = serverReader.readLine()) != null) {
+                printToUser(incoming);
+            }
+
+            printToUser("Disconnected from Server.");
+            System.exit(0);
+        } catch(IOException i) {
+            try {
+                printToUser("Connection failed.");
+            } catch(IOException e) {}
+            System.exit(0);
+        }
     }
 
     /**
@@ -292,6 +303,18 @@ public class ChatterboxClient {
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
+    }
+
+    public void printToUser(String message) throws IOException {
+        try {
+            this.userOutput.write((message + "\n").getBytes());
+            this.userOutput.flush();
+        } catch(IOException e) {
+        }
+    }
+
+    public void writeToServer(String message) throws IOException {
+        
     }
 
     public String getHost() {
