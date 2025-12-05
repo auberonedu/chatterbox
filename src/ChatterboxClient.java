@@ -317,6 +317,7 @@ public class ChatterboxClient {
             try {
                 res = serverReader.readLine();
                 userOutput.write((res + "\n").getBytes(StandardCharsets.UTF_8));
+                userOutput.flush();
             } catch (IOException e) {
                 // Exit if there is an IO exception
                 System.exit(0);
