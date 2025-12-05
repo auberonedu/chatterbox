@@ -125,16 +125,15 @@ public class ChatterboxClient {
      * @throws IllegalArgumentException on any bad/missing input
      */
     public static ChatterboxOptions parseArgs(String[] args) throws IllegalArgumentException {
-        // TODO: read args in the required order and return new ChatterboxOptions(host, port, username, password)
-        // Remove this exception
-        // throw new UnsupportedOperationException("Argument parsing not yet implemented. Implement parseArgs and remove this exception");
-
         if(args.length != 4) throw new IllegalArgumentException("Argument must be 4 inputs");
-
+        String host = args[0];
+        String username = args[2];
+        String password = args[3];
         int port = Integer.parseInt(args[1]);
 
         if(port < 1 || port > 65535) throw new IllegalArgumentException("Port must be between 1 and 65535");
-       
+        
+        return new ChatterboxOptions(host, port, username, password);
     }
 
     /**
