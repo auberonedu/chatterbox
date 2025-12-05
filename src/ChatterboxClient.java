@@ -217,10 +217,11 @@ public class ChatterboxClient {
         userOutput.write((initialPrompt).getBytes());
         userOutput.flush();
 
-        this.serverWriter.write(this.username + " " + this.password);
+        this.serverWriter.write(this.username + " " + this.password + "\n");
         this.serverWriter.flush();
 
         String response = serverReader.readLine();
+
         if(response == null) {
             throw new IOException("Server didn't reply.");
         }
