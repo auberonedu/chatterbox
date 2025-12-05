@@ -218,8 +218,7 @@ public class ChatterboxClient {
         String initialPrompt = serverReader.readLine();
         printToUser(initialPrompt);
 
-        this.serverWriter.write(this.username + " " + this.password + "\n");
-        this.serverWriter.flush();
+        writeToServer(this.username + " " + this.password);
 
         String response = serverReader.readLine();
 
@@ -314,7 +313,10 @@ public class ChatterboxClient {
     }
 
     public void writeToServer(String message) throws IOException {
-        
+        try {
+            this.serverWriter.write(message + "\n");
+            this.serverWriter.flush();
+        } catch(IOException e) {}
     }
 
     public String getHost() {
