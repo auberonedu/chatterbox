@@ -187,21 +187,17 @@ public class ChatterboxClient {
     public void connect() throws IOException {
         // if I want to connect, I need to be able to send messages and accepting
         // incoming
-        try (
-                Socket socket = new Socket(host, port)
-            ) {
-            InputStream inputStream = socket.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream,
-                    java.nio.charset.StandardCharsets.UTF_8);
-            // BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            serverReader = new BufferedReader(inputStreamReader);
+        Socket socket = new Socket(host, port);
+        InputStream inputStream = socket.getInputStream();
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream,
+                java.nio.charset.StandardCharsets.UTF_8);
+        // BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        serverReader = new BufferedReader(inputStreamReader);
 
-            OutputStream outputStream = socket.getOutputStream();
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream,
-                    java.nio.charset.StandardCharsets.UTF_8);
-            serverWriter = new BufferedWriter(outputStreamWriter);
-        }
-
+        OutputStream outputStream = socket.getOutputStream();
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream,
+                java.nio.charset.StandardCharsets.UTF_8);
+        serverWriter = new BufferedWriter(outputStreamWriter);
         // throw new UnsupportedOperationException("Connect not yet implemented.
         // Implement connect() and remove this exception!");
 
@@ -233,11 +229,15 @@ public class ChatterboxClient {
      */
     public void authenticate() throws IOException, IllegalArgumentException {
         // throw new UnsupportedOperationException(
-                //"Authenticate not yet implemented. Implement authenticate() and remove this exception!");
+        // "Authenticate not yet implemented. Implement authenticate() and remove this
+        // exception!");
         // Hint: use the username/password instance variables, DO NOT READ FROM
         // userInput
         // send messages using serverWriter (don't forget to flush!)
+        
+        userOutput.write(serverReader.readLine().getBytes());
         serverWriter.write(username + " " + password + "\n");
+        serverWriter.flush();
     }
 
     /**
@@ -254,8 +254,10 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        throw new UnsupportedOperationException(
-                "Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        printIncomingChats();
+        // throw new UnsupportedOperationException(
+        // "Chat streaming not yet implemented. Implement streamChat() and remove this
+        // exception!");
     }
 
     /**
@@ -275,6 +277,22 @@ public class ChatterboxClient {
     public void printIncomingChats() {
         // Listen on serverReader
         // Write to userOutput, NOT System.out
+        try {
+            String line;
+            while ((line = serverReader.readLine()) != null) {
+                userOutput.write((line + "\n").getBytes());
+                userOutput.flush();
+            }
+            userOutput.write(("disconnected").getBytes());
+            userOutput.flush();
+
+        } catch (IOException e) {
+            try {
+                userOutput.write(("disconnected in try/catch").getBytes());
+            } catch (IOException ignored) {
+
+            }
+        }
     }
 
     /**
