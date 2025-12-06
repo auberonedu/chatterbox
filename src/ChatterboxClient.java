@@ -159,8 +159,6 @@ public class ChatterboxClient {
         }       
 
         return new ChatterboxOptions(host, port, username, password);
-        // Remove this exception
-        // throw new UnsupportedOperationException("Argument parsing not yet implemented. Implement parseArgs and remove this exception");
     }
 
     /**
@@ -179,8 +177,12 @@ public class ChatterboxClient {
         this.userInput = new Scanner(userInput, StandardCharsets.UTF_8);
         this.userOutput = userOutput;
 
-        throw new UnsupportedOperationException("Constructor not yet implemented. Implement ChatterboxClient constructor and remove this exception");
         // TODO: copy options.getHost(), getPort(), getUsername(), getPassword() into fields
+        // Copies validated logic from the ChatterboxOptions method
+        this.host = options.getHost();
+        this.port = options.getPort();
+        this.username = options.getUsername();
+        this.password = options.getPassword();
     }
 
     /**
