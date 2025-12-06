@@ -6,6 +6,10 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
+
+WORKING ON FILE NOW: REMOVE LATER -- REMEMBER TO REMOVE THIS LINE: 
+
+
 /**
  * A simple command-line chat client for the Chatterbox server.
  *
