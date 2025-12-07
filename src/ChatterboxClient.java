@@ -181,19 +181,15 @@ public class ChatterboxClient {
 
         // Make sure to have this.serverReader and this.serverWriter set by the end of this method!
         // hint: get the streams from the sockets, use those to create the InputStreamReader/OutputStreamWriter and the BufferedReader/BufferedWriter
-        try (Socket socket = new Socket(host, port)) {
-            InputStream inputStream = socket.getInputStream();
-            OutputStream outputStream = socket.getOutputStream();
+        Socket socket = new Socket(host, port);
+        InputStream inputStream = socket.getInputStream();
+        OutputStream outputStream = socket.getOutputStream();
 
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8);
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8);
- 
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8);
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8);
 
-            this.serverReader = bufferedReader;
-            this.serverWriter = bufferedWriter;
-        }
+        serverReader = new BufferedReader(inputStreamReader);
+        serverWriter = new BufferedWriter(outputStreamWriter);
     }
 
     /**
@@ -204,7 +200,7 @@ public class ChatterboxClient {
      *   to userOutput.
      * - Send ONE LINE containing:
      *      username + " " + password + "\n"
-     *   using serverOutput.
+     *   using serverOutput. <-- serverWriter?
      * - Read ONE response line from serverReader.
      * - If the response indicates failure, throw IllegalArgumentException
      *   with that response text.
@@ -217,10 +213,22 @@ public class ChatterboxClient {
      * @throws IllegalArgumentException for bad credentials / server rejection
      */
     public void authenticate() throws IOException, IllegalArgumentException {
-        throw new UnsupportedOperationException("Authenticate not yet implemented. Implement authenticate() and remove this exception!");
+        // throw new UnsupportedOperationException("Authenticate not yet implemented. Implement authenticate() and remove this exception!");
         // Hint: use the username/password instance variables, DO NOT READ FROM userInput
         // send messages using serverWriter (don't forget to flush!)
-    }
+        serverWriter.write(serverReader.readLine());
+        serverWriter.newLine();
+        serverWriter.write(username + " " + password + "\n");
+        serverWriter.flush();
+        String line = serverReader.readLine();
+        if (line == null) {
+            throw new IllegalArgumentException(line);
+        } else {
+            serverWriter.write(line);
+            serverWriter.newLine();
+            serverWriter.flush();
+        }
+   }
 
     /**
      * Start full-duplex chat streaming. SEE INSTRUCTIONS FOR HOW TO DO THIS PART BY PART
