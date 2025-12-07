@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
+import javax.imageio.IIOException;
+
 /**
  * A simple command-line chat client for the Chatterbox server.
  *
@@ -268,9 +270,12 @@ public class ChatterboxClient {
                 userOutput.write(10);
             }
         } catch (IOException e) {
-            System.err.println("Disconnected from server");
-            System.err.println(e.getMessage());
-            System.exit(1);
+            try {
+                userOutput.write(("Disconnected from server").getBytes());
+                System.exit(1);
+            } catch (IOException x) {
+                System.err.println(x.getMessage());
+            }
         }
     }
 
