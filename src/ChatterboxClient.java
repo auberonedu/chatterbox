@@ -173,13 +173,11 @@ public class ChatterboxClient {
         this.userInput = new Scanner(userInput, StandardCharsets.UTF_8);
         this.userOutput = userOutput;
 
-        throw new UnsupportedOperationException("Constructor not yet implemented. Implement ChatterboxClient constructor and remove this exception");
+        // NOTE: add // on line 177 --> so it removes the red scuiggle line in line 181
+        // throw new UnsupportedOperationException("Constructor not yet implemented. Implement ChatterboxClient constructor and remove this exception");
         // TODO: copy options.getHost(), getPort(), getUsername(), getPassword() into fields
-    // Save user I/O streams
-    this.userInput = new Scanner(userInput, StandardCharsets.UTF_8);
-    this.userOutput = userOutput;
+    
 
-    // Copy option fields into instance variables
     this.host = options.getHost();
     this.port = options.getPort();
     this.username = options.getUsername();
