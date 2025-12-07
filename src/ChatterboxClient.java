@@ -184,8 +184,6 @@ public class ChatterboxClient {
             System.err.println("Error opening socket");
             System.err.println(e.getMessage());
         }
-
-        // hint: get the streams from the sockets, use those to create the InputStreamReader/OutputStreamWriter and the BufferedReader/BufferedWriter
     }
 
     /**
@@ -223,6 +221,10 @@ public class ChatterboxClient {
 
         line = serverReader.readLine();
         if (line.contains("fail")) throw new IllegalArgumentException(line);
+
+        userOutput.write(line.getBytes());
+        userOutput.write(10);
+        line = serverReader.readLine();
         userOutput.write(line.getBytes());
         userOutput.write(10);
         return;
@@ -241,7 +243,7 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        printIncomingChats();
     }
 
     /**
@@ -259,8 +261,17 @@ public class ChatterboxClient {
      *   print a message to userOutput and exit.
      */
     public void printIncomingChats() {
-        // Listen on serverReader
-        // Write to userOutput, NOT System.out
+        try {
+            String line;
+            while((line = serverReader.readLine()) != null) {
+                userOutput.write(line.getBytes());
+                userOutput.write(10);
+            }
+        } catch (IOException e) {
+            System.err.println("Disconnected from server");
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
     }
 
     /**
