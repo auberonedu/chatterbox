@@ -211,6 +211,8 @@ public class ChatterboxClient {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8);
             BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
             this.serverWriter = bufferedWriter;
+        } catch(IOException e){
+            throw new IOException("Socket cannot be opened: " + e);
         }
    
     }
