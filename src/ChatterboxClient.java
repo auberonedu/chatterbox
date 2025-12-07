@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.CharArrayReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -126,9 +127,8 @@ public class ChatterboxClient {
      */
     public static ChatterboxOptions parseArgs(String[] args) throws IllegalArgumentException {
         // TODO: read args in the required order and return new ChatterboxOptions(host, port, username, password)
-        // Remove this exception
         if (args.length != 4) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("There must be exactly 4 arguments. Please try again.");
         } 
 
         int port = Integer.parseInt(args[1]);
@@ -159,8 +159,8 @@ public class ChatterboxClient {
         this.userInput = new Scanner(userInput, StandardCharsets.UTF_8);
         this.userOutput = userOutput;
 
-        throw new UnsupportedOperationException("Constructor not yet implemented. Implement ChatterboxClient constructor and remove this exception");
         // TODO: copy options.getHost(), getPort(), getUsername(), getPassword() into fields
+        options = new ChatterboxOptions(options.getHost(), options.getPort(), options.getUsername(), options.getPassword());
     }
 
     /**
