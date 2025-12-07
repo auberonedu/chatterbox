@@ -225,6 +225,7 @@ public class ChatterboxClient {
 }
 
 
+
     /**
      * Authenticate with the server using the simple protocol.
      *
