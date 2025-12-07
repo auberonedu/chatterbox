@@ -274,6 +274,17 @@ public class ChatterboxClient {
 
         // Makes sure the username and password gets sent to the server immediatley.
         serverWriter.flush();
+
+        //serverReader reads the next line if there is one and stores it in a variable (reponse)
+        String response = serverReader.readLine();
+
+        // If response equals null or does not start with "Welcome" (only pathway that triggers a success response) throw with that response text
+        if (response == null || !response.startsWith("Welcome")) {
+            throw new IllegalArgumentException(response);
+        }
+
+        // If successfull, write the success response to the terminal/user
+        userOutput.write((response + "\n").getBytes(StandardCharsets.UTF_8));
     }
 
     /**
