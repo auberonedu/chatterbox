@@ -200,27 +200,26 @@ public class ChatterboxClient {
      */
     public void connect() throws IOException {
 
-        try (Socket socket = new Socket(host, port)) {
-            InputStream inputStream = socket.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream,
-                    java.nio.charset.StandardCharsets.UTF_8);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        Socket socket = new Socket(host, port);
+        InputStream inputStream = socket.getInputStream();
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream,
+                java.nio.charset.StandardCharsets.UTF_8);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 
-            OutputStream outputStream = socket.getOutputStream();
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream,
-                    java.nio.charset.StandardCharsets.UTF_8);
-            BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+        OutputStream outputStream = socket.getOutputStream();
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream,
+                java.nio.charset.StandardCharsets.UTF_8);
+        BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
 
-            this.serverReader = bufferedReader;
-            this.serverWriter = bufferedWriter;
+        this.serverReader = bufferedReader;
+        this.serverWriter = bufferedWriter;
 
-        }
-
-        // Make sure to have this.serverReader and this.serverWriter set by the end of
-        // this method!
-        // hint: get the streams from the sockets, use those to create the
-        // InputStreamReader/OutputStreamWriter and the BufferedReader/BufferedWriter
     }
+
+    // Make sure to have this.serverReader and this.serverWriter set by the end of
+    // this method!
+    // hint: get the streams from the sockets, use those to create the
+    // InputStreamReader/OutputStreamWriter and the BufferedReader/BufferedWriter
 
     /**
      * Authenticate with the server using the simple protocol.
@@ -243,8 +242,17 @@ public class ChatterboxClient {
      * @throws IllegalArgumentException for bad credentials / server rejection
      */
     public void authenticate() throws IOException, IllegalArgumentException {
-        throw new UnsupportedOperationException(
-                "Authenticate not yet implemented. Implement authenticate() and remove this exception!");
+
+        String serverPrompt = serverReader.readLine();
+        System.out.println(serverPrompt);
+
+        serverWriter.write(username + " " + password);
+        serverWriter.newLine();
+        serverWriter.flush();
+
+        String responseReader = serverReader.readLine();
+        System.out.println(responseReader);
+
         // Hint: use the username/password instance variables, DO NOT READ FROM
         // userInput
         // send messages using serverWriter (don't forget to flush!)
