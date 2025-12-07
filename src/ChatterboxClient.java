@@ -181,7 +181,7 @@ public class ChatterboxClient {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8);
             this.serverWriter = new BufferedWriter(outputStreamWriter);
         } catch (IOException e) {
-            System.err.println("Error reading from socket");
+            System.err.println("Error opening socket");
             System.err.println(e.getMessage());
         }
 
@@ -196,7 +196,7 @@ public class ChatterboxClient {
      *   to userOutput.
      * - Send ONE LINE containing:
      *      username + " " + password + "\n"
-     *   using serverOutput.
+     *   using serverWriter.
      * - Read ONE response line from serverReader.
      * - If the response indicates failure, throw IllegalArgumentException
      *   with that response text.
@@ -205,13 +205,27 @@ public class ChatterboxClient {
      * Assumption:
      * - The server closes the connection after a failed auth.
      *
-     * @throws IOException for network errors
+     * @throws IOException for network error(s)
      * @throws IllegalArgumentException for bad credentials / server rejection
      */
     public void authenticate() throws IOException, IllegalArgumentException {
-        throw new UnsupportedOperationException("Authenticate not yet implemented. Implement authenticate() and remove this exception!");
-        // Hint: use the username/password instance variables, DO NOT READ FROM userInput
-        // send messages using serverWriter (don't forget to flush!)
+        String line = serverReader.readLine();
+        if (line != null) { 
+            userOutput.write(line.getBytes());
+        }
+
+        userOutput.write((getUsername() + " " + getPassword()).getBytes());
+        serverWriter.write(getUsername() + " " + getPassword());
+        serverWriter.newLine();
+        serverWriter.flush();
+
+        userOutput.write(10); // 10 represents a newline in ASCII
+
+        line = serverReader.readLine();
+        if (line.contains("fail")) throw new IllegalArgumentException(line);
+        userOutput.write(line.getBytes());
+        userOutput.write(10);
+        return;
     }
 
     /**
