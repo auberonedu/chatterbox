@@ -129,6 +129,10 @@ public class ChatterboxClient {
         if(args.length != 4){
             throw new IllegalArgumentException("Invalid args length, expected 4 arguments");
         }
+        String HOST = args[0];
+        String PORT = args[1];
+        String USERNAME = args[2];
+        String PASSWORD = args[3];
     }
 
     /**
