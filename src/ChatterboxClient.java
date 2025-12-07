@@ -2,9 +2,12 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
+import java.net.Socket;
 
 /**
  * A simple command-line chat client for the Chatterbox server.
@@ -185,11 +188,25 @@ public class ChatterboxClient {
      * @throws IOException if the socket cannot be opened
      */
     public void connect() throws IOException {
-        throw new UnsupportedOperationException("Connect not yet implemented. Implement connect() and remove this exception!");
+        Socket socket = new Socket(host, port);
+        InputStream inputStream = socket.getInputStream();
+        OutputStream outputStream = socket.getOutputStream();
+        
+        // Setup serverReader
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        // finally asign the newly created bufferedReader object to the serverReader instance field
+        this.serverReader = bufferedReader;
+
+        // Set up serverWriter
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+        BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+        // finally asign the newly created bufferedWriter object to the serverWriter instance field
+        this.serverWriter = bufferedWriter;
+        }
 
         // Make sure to have this.serverReader and this.serverWriter set by the end of this method!
         // hint: get the streams from the sockets, use those to create the InputStreamReader/OutputStreamWriter and the BufferedReader/BufferedWriter
-    }
 
     /**
      * Authenticate with the server using the simple protocol.
@@ -292,3 +309,4 @@ public class ChatterboxClient {
                 + "]";
     }
 }
+
