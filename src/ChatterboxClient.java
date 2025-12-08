@@ -305,8 +305,20 @@ public class ChatterboxClient {
         // Thread clientThread = new Thread(() -> handleClient(socket));
         // clientThread.start();
 
-        Thread incoming = new Thread(() -> printIncomingChats());
-        Thread outgoing = new Thread(() -> sendOutgoingChats());
+        Thread incoming = new Thread(() -> {
+            try {
+                printIncomingChats();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        Thread outgoing = new Thread(() -> {
+            try {
+                sendOutgoingChats();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
 
         incoming.start();
         outgoing.start();
@@ -325,17 +337,30 @@ public class ChatterboxClient {
      * - Do NOT use System.out directly.
      * - If an IOException happens, treat it as disconnect:
      *   print a message to userOutput and exit.
+     *   @throws IOException 
      */
-    public void printIncomingChats() {
+    public void printIncomingChats() throws IOException {
         // Listen on serverReader
         // Write to userOutput, NOT System.out
-        /*try {
 
-        } catch (IOException e) {
-            userInput.println("lost connection");
-            userOutput.flush();
-        }*/
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(userOutput, java.nio.charset.StandardCharsets.UTF_8);
+        BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
         
+        try {
+            while(true){
+                String line = serverReader.readLine();
+
+                if(line == null){
+                    userOutput.write("disconnected".getBytes());
+                    userOutput.flush();
+                    return;
+                }
+                userOutput.write((line + "\n").getBytes());
+                userOutput.flush();
+            }
+        } catch (IOException e) {
+            throw new IOException(e);
+        }
     }
 
     /**
@@ -350,10 +375,12 @@ public class ChatterboxClient {
      * - If writing fails (IOException), the connection is gone:
      *   print a message to userOutput and exit.
      */
-    public void sendOutgoingChats() {
-        // Use the userInput to read, NOT System.in directly
-        // loop forever reading user input
-        // write to serverOutput
+    public void sendOutgoingChats() throws IOException{
+        while(userInput.hasNextLine()){
+            String line = userInput.nextLine();
+            serverWriter.write(line + "\n");
+            serverWriter.flush();
+        }
     }
 
     public String getHost() {
