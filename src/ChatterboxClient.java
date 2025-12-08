@@ -184,15 +184,15 @@ public class ChatterboxClient {
      * @throws IOException if the socket cannot be opened
      */
     public void connect() throws IOException {
-        // try (Socket socket = new Socket(getHost(), getPort())) {
-        //     InputStream inputStream = socket.getInputStream();
-        //     InputStreamReader inputStreamReader = new InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8);
-        //     this.serverReader = new BufferedReader(inputStreamReader);
+        try (Socket socket = new Socket(getHost(), getPort())) {
+            InputStream inputStream = socket.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8);
+            this.serverReader = new BufferedReader(inputStreamReader);
 
-        //     OutputStream outputStream = socket.getOutputStream();
-        //     OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8);
-        //     this.serverWriter = new BufferedWriter(outputStreamWriter);
-        // }
+            OutputStream outputStream = socket.getOutputStream();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8);
+            this.serverWriter = new BufferedWriter(outputStreamWriter);
+        }
         // Make sure to have this.serverReader and this.serverWriter set by the end of this method!
         // hint: get the streams from the sockets, use those to create the InputStreamReader/OutputStreamWriter and the BufferedReader/BufferedWriter
     }
