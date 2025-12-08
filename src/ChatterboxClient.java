@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -173,6 +174,7 @@ public class ChatterboxClient {
         this.username = options.getUsername();
         this.password = options.getPassword();
 
+
     }
 
     /**
@@ -208,6 +210,7 @@ public class ChatterboxClient {
         this.serverReader = bufferedReader;
         this.serverWriter = bufferedWriter;
 
+        
 
 
 
@@ -274,7 +277,15 @@ public class ChatterboxClient {
      */
     public void streamChat() throws IOException {
         // throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
-        printIncomingChats();
+        // printIncomingChats();
+        Thread threadPrint = new Thread(() -> printIncomingChats());
+        Thread threadSend = new Thread(() -> sendOutgoingChats());
+
+        threadPrint.start();
+        threadSend.start();
+
+
+        // sendOutgoingChats();
     }
 
     /**
@@ -294,18 +305,19 @@ public class ChatterboxClient {
     public void printIncomingChats() {
         // Listen on serverReader
         // Write to userOutput, NOT System.out
+
+        
         
         while(true){
     
             try {
                 String line = serverReader.readLine();;
-                if(line.isBlank()){
+                if(line == null){
                     System.out.println("line is empty... nothing to read");
-                    return;
+
                 }else{
-               System.out.println(line);
-                    // serverReader.readLine();
-                    
+                    System.out.println(line);
+                      
                 }
             } catch (IOException e) {
                 System.out.println(e.getMessage());
@@ -330,6 +342,18 @@ public class ChatterboxClient {
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
+        while(true){
+            try {
+                String message = userInput.nextLine();
+                serverWriter.write(message);
+                serverWriter.newLine();
+                serverWriter.flush();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+                System.out.println("Message failed....");
+                return;
+            }
+        }
     }
 
     public String getHost() {
