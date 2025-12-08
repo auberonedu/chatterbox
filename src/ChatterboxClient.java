@@ -376,6 +376,16 @@ public class ChatterboxClient {
         // write to serverOutput
         
         // WAVE 7: 
+        while (true) {
+        if (!userInput.hasNextLine()) {
+            break;
+        }
+        String message = userInput.nextLine();
+        serverWriter.write(message + "\n");
+        serverWriter.flush();
+    }
+        
+
     
     }
 
