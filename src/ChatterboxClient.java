@@ -254,25 +254,31 @@ public class ChatterboxClient {
         // WAVE 5
         // Read users prompt if there is     
     String prompt = serverReader.readLine();
-    if (prompt != null) {
-        userOutput.write((prompt + "\n").getBytes(StandardCharsets.UTF_8));
-        userOutput.flush();
+    if (prompt == null) {
+          throw new IOException("Server disconnected before authentication prompt.");
     }
 
+    // Prompt sent to the user
+    userOutput.write((prompt + "\n").getBytes(StandardCharsets.UTF_8));
+    userOutput.flush();
+
     // Send username and password
-    serverWriter.write(username + " " + password + "\n");
+    String loginLine = username + " " + password;
+    serverWriter.write(loginLine + "\n");
     serverWriter.flush();
 
     // Read server response
     String response = serverReader.readLine();
     if (response == null) {
-        throw new IOException("Server closed connection unexpectedly.");
+        throw new IOException("Server disconnected during authentication.");
     }
+     
+    //response to the user
+    userOutput.write((response + "\n").getBytes(StandardCharsets.UTF_8));
+    userOutput.flush();
 
-    if (response.startsWith("Welcome")) {
-        // Successful login, print welcome message
-        userOutput.write((response + "\n").getBytes(StandardCharsets.UTF_8));
-        userOutput.flush();
+    // if successful
+        if (response.startsWith("Welcome")) {
     } else {
         // Failed authentication
         throw new IllegalArgumentException(response);
