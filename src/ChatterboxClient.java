@@ -271,7 +271,7 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        printIncomingChats();
     }
 
     /**
@@ -291,6 +291,30 @@ public class ChatterboxClient {
     public void printIncomingChats() {
         // Listen on serverReader
         // Write to userOutput, NOT System.out
+
+        try {
+            while (true) {
+                // Read a line from the server
+                String message = this.serverReader.readLine();
+                
+                // Disconnect if there's no server
+                if (message == null) {
+                    this.userOutput.write("Server disconnected".getBytes(StandardCharsets.UTF_8));
+                    this.userOutput.flush();
+                    System.exit(1);
+                }
+                
+                // Print the message to the user
+                this.userOutput.write((message + "\n").getBytes(StandardCharsets.UTF_8));
+                this.userOutput.flush();
+            }
+        } catch (IOException e) {
+            try {
+                this.userOutput.write("Connection lost".getBytes(StandardCharsets.UTF_8));
+                this.userOutput.flush();
+            } catch (IOException ignored) {}
+            System.exit(0);
+        }
     }
 
     /**
