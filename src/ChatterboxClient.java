@@ -308,8 +308,8 @@ public class ChatterboxClient {
         while(true){
             try {
                 String input = userInput.nextLine();
-                userOutput.write((input + "\n").getBytes(StandardCharsets.UTF_8));
-                userOutput.flush();
+                serverWriter.write((input + "\n"));
+                serverWriter.flush();
             } catch (IOException e) {
                 try {
                     userOutput.write("Disconnected from server\n".getBytes(StandardCharsets.UTF_8));
