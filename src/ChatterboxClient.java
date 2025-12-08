@@ -9,6 +9,8 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
+
+
 /**
  * A simple command-line chat client for the Chatterbox server.
  *
@@ -317,6 +319,7 @@ public class ChatterboxClient {
             } catch (IOException err) {}
         }
 }
+
     /**
      * Continuously read user-typed messages and send them to the server.
      *
@@ -333,6 +336,26 @@ public class ChatterboxClient {
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
+
+        // continously loop to read user input  
+        while (true) {
+            // read a line from user and send it to the server 
+            try {
+                String line = userInput.nextLine();
+                
+                serverWriter.write(line);
+                serverWriter.newLine();
+                serverWriter.flush();
+
+            // if sending message fails, notify user that it's disconnected   
+            } catch (IOException e) {
+                try {
+                    userOutput.write("Connection disconnected".getBytes());
+                    userOutput.flush();
+                } catch (IOException err) {}
+                return;
+            }
+        }
     }
 
     public String getHost() {
