@@ -214,10 +214,15 @@ public class ChatterboxClient {
      */
     public void authenticate() throws IOException, IllegalArgumentException {
         String line;
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(userOutput, java.nio.charset.StandardCharsets.UTF_8);
+        BufferedWriter userWriter = new BufferedWriter(outputStreamWriter);
         while((line=serverReader.readLine())!=null) {
-            userOutput.send(line);
+            userWriter.write(line);
+            userWriter.newLine();
+            userWriter.flush();
         }
         serverWriter.write(username + " " + password + "/n");
+        serverReader.readLine();
         // Hint: use the username/password instance variables, DO NOT READ FROM userInput
         // send messages using serverWriter (don't forget to flush!)
     }
