@@ -117,8 +117,8 @@ public class ChatterboxClient {
      *   PASSWORD
      *
      * Rules:
-     * - If args.length != 4, throw IllegalArgumentException.
-     * - PORT must parse as an integer in the range 1..65535, else throw.
+     * - 1. If args.length != 4, 2. throw IllegalArgumentException.
+     * - 3. PORT must parse as an integer in the range 1..65535, 4. else throw.
      *
      * @param args raw command-line arguments
      * @return a fully populated ChatterboxOptions
@@ -127,7 +127,41 @@ public class ChatterboxClient {
     public static ChatterboxOptions parseArgs(String[] args) throws IllegalArgumentException {
         // TODO: read args in the required order and return new ChatterboxOptions(host, port, username, password)
         // Remove this exception
-        throw new UnsupportedOperationException("Argument parsing not yet implemented. Implement parseArgs and remove this exception");
+        // throw new UnsupportedOperationException("Argument parsing not yet implemented. Implement parseArgs and remove this exception");
+
+        //Check if length is != 4
+        if(args.length != 4){
+            //Throw new Illegal argument exception if length is != 4
+            throw new IllegalArgumentException("Must have HOST, PORT, USERNAME, PASSWORD");
+        }
+
+        //Required argument order
+        String host = args[0];
+        String portNum = args[1];
+        String userName = args[2];
+        String password = args[3];
+
+        //to parse portNum
+        int port = 0;
+
+
+        try{
+            //3. Parse the integer
+            port = Integer.parseInt(portNum);
+        } catch (NumberFormatException e){
+            //4. Else throw
+            throw new IllegalArgumentException("PORT not initialized", e);
+        }
+
+        //3. check if the Parse is in range
+        if(port < 0 || port > 65535) {
+            //4. Else throw
+            throw new IllegalArgumentException("Port is not between 0 and 65000");
+        }
+
+        // TODO: Return new chatterboxoptions
+        return new ChatterboxOptions(host, port, userName, password);
+        
     }
 
     /**
@@ -267,7 +301,6 @@ public class ChatterboxClient {
 
     @Override
     public String toString() {
-        return "ChatterboxClient [host=" + host + ", port=" + port + ", username=" + username + ", password=" + password
-                + "]";
+        return "ChatterboxClient [host=" + host + ", port=" + port + ", username=" + username + ", password=" + password + "]";
     }
 }
