@@ -249,7 +249,7 @@ public class ChatterboxClient {
         } else if (response.startsWith("Welcome")) { // starts w/ welcome = auth success
             // print the welcome line to userOutput 
             userOutput.write((response + "\n").getBytes(StandardCharsets.UTF_8));
-            return;
+            return; // return
         } else {
             throw new IllegalArgumentException(response);
         }
@@ -270,6 +270,8 @@ public class ChatterboxClient {
     public void streamChat() throws IOException {
         Thread incomingThread = new Thread(() -> printIncomingChats());
         incomingThread.start();   
+        Thread outgoingThread = new Thread(() -> sendOutgoingChats());
+        outgoingThread.start();
     }
 
     /**
@@ -325,6 +327,21 @@ public class ChatterboxClient {
      *   print a message to userOutput and exit.
      */
     public void sendOutgoingChats() {
+        while (userInput.hasNext()) { // loop while scanner has a next line
+            String line = userInput.nextLine(); // read the next line
+
+            try {
+                // write it to serverReader (serverOutput)
+                serverWriter.write(line + "\n"); 
+                serverWriter.flush();
+            } catch (IOException e) { // if writing fails
+                // connection is gone
+                try {
+                    userOutput.write(("Connection is gone: " + e.getMessage() + "\n").getBytes(StandardCharsets.UTF_8));
+                } catch (IOException i) {}
+                System.exit(1); // exit
+            }
+        }
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
