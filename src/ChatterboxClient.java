@@ -55,6 +55,7 @@ public class ChatterboxClient {
      * This method is already complete. Your work is in the TODO methods below.
      */
     public static void main(String[] args) {
+        System.out.println("Hello");
         ChatterboxOptions options = null;
         System.out.println("Parsing options...");
         try {
@@ -241,7 +242,7 @@ public class ChatterboxClient {
         //System.out.println(authoResponse);
 
          //    if authoResponse starts with "Welcome", then all good, else throw error
-         if(!authoResponse.startsWith("welcome")){
+         if(authoResponse.startsWith("Welcome")){
             System.out.println(authoResponse);
          }else{
             throw new IllegalArgumentException(authoResponse);
@@ -265,7 +266,26 @@ public class ChatterboxClient {
      */
     public void streamChat() throws IOException {
         // calling the printIncomingChats from the steamChat
-      printIncomingChats();
+        // sendOutgoingChats();
+    //   printIncomingChats();
+          Thread thread1 = new Thread(() -> printIncomingChats());
+         Thread thread2 = new Thread(() -> sendOutgoingChats());
+
+          thread1.start();
+          thread2.start();
+
+    //          try (ServerSocket server = new ServerSocket(port)) {
+    //         while(true){
+    //             System.out.println("wating for client to connect...");
+    //             Socket socket = server.accept();
+
+    //             Thread clienThread = new Thread(() -> printIncomingChats(socket));
+    //             clienThread.start();
+    //             // handleClient(socket);
+
+    //         }
+  
+    //   }
 
  
     }
@@ -284,17 +304,28 @@ public class ChatterboxClient {
      * - If an IOException happens, treat it as disconnect:
      *   print a message to userOutput and exit.
      */
-    public void printIncomingChats() throws IOException {
+    public void printIncomingChats(){
         // Listen on serverReader
         //Continuously read messages from the server and print them to the user.
         String line;
+       try{
         while((line = serverReader.readLine()) != null)
         {
-            System.out.println(line);
+             System.out.println(line);
         }
+
+       }catch(IOException e){
+
+       } 
+
+    }
+        
+    
+    
+        
         
         // Write to userOutput, NOT System.out
-    }
+    
 
     /**
      * Continuously read user-typed messages and send them to the server.
@@ -308,10 +339,22 @@ public class ChatterboxClient {
      * - If writing fails (IOException), the connection is gone:
      *   print a message to userOutput and exit.
      */
-    public void sendOutgoingChats() {
+    public void sendOutgoingChats(){
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
+        String line;
+       try{
+        while((line = userInput.nextLine()) != null)
+        {
+            //System.out.println(line);
+            serverWriter.write(line);
+            serverWriter.newLine();
+            serverWriter.flush();
+        }
+       } catch(IOException e){
+
+       }
     }
 
     public String getHost() {
