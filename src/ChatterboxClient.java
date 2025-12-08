@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -240,12 +241,12 @@ public class ChatterboxClient {
         //System.out.println(authoResponse);
 
          //    if authoResponse starts with "Welcome", then all good, else throw error
-         if(authoResponse.startsWith("welcome")){
+         if(!authoResponse.startsWith("welcome")){
             System.out.println(authoResponse);
          }else{
             throw new IllegalArgumentException(authoResponse);
          }
-       
+                
         // Hint: use the username/password instance variables, DO NOT READ FROM userInput
         // send messages using serverWriter (don't forget to flush!)
     }
@@ -263,7 +264,10 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        // calling the printIncomingChats from the steamChat
+      printIncomingChats();
+
+ 
     }
 
     /**
@@ -280,8 +284,15 @@ public class ChatterboxClient {
      * - If an IOException happens, treat it as disconnect:
      *   print a message to userOutput and exit.
      */
-    public void printIncomingChats() {
+    public void printIncomingChats() throws IOException {
         // Listen on serverReader
+        //Continuously read messages from the server and print them to the user.
+        String line;
+        while((line = serverReader.readLine()) != null)
+        {
+            System.out.println(line);
+        }
+        
         // Write to userOutput, NOT System.out
     }
 
