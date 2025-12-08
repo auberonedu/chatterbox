@@ -203,11 +203,11 @@ public class ChatterboxClient {
         Socket socket = new Socket(this.host, this.port);
     
         // Get input and output streams from the socket
-        this.serverReader = new BufferedReader(new InputStreamReader(socket.getInputStream(),
-            StandardCharsets.UTF_8));
-    
-        this.serverWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(),
-            StandardCharsets.UTF_8));
+        InputStream inputStream = socket.getInputStream();
+        OutputStream outputStream = socket.getOutputStream();
+
+        this.serverReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+        this.serverWriter = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8));
     }
 
     /**
@@ -250,7 +250,7 @@ public class ChatterboxClient {
         // Read server response and authenticate it
         String response = this.serverReader.readLine();
         if (response == null || !response.startsWith("Welcome")) {
-            throw new IllegalArgumentException(response != null ? response : "Server closed connection");
+            throw new IllegalArgumentException("Server closed connection");
         }
 
         // Print welcome message if authentication passed
@@ -271,7 +271,23 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        printIncomingChats();
+        // Create a thread for printing incoming messages
+        Thread incomingThread = new Thread(() -> printIncomingChats());
+        
+        // Create a thread for sending outgoing messages
+        Thread outgoingThread = new Thread(() -> sendOutgoingChats());
+        
+        // Start both threads
+        incomingThread.start();
+        outgoingThread.start();
+        
+        // Run both threads until they disconnect
+        try {
+            incomingThread.join();
+            outgoingThread.join();
+        } catch (InterruptedException e) {
+            System.exit(1);
+        }
     }
 
     /**
@@ -313,7 +329,7 @@ public class ChatterboxClient {
                 this.userOutput.write("Connection lost".getBytes(StandardCharsets.UTF_8));
                 this.userOutput.flush();
             } catch (IOException ignored) {}
-            System.exit(0);
+            System.exit(1);
         }
     }
 
@@ -333,6 +349,26 @@ public class ChatterboxClient {
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
+
+        try {
+            while (this.userInput.hasNextLine()) {
+                // Read a line from the user and send it to the server
+                String userMessage = this.userInput.nextLine();
+                this.serverWriter.write(userMessage + "\n");
+                this.serverWriter.flush();
+            }
+            
+            // Close the stream once the user leaves
+            this.userOutput.write("Input stream closed".getBytes(StandardCharsets.UTF_8));
+            this.userOutput.flush();
+            System.exit(1);
+        } catch (IOException e) {
+            try {
+                this.userOutput.write("Connection lost while sending".getBytes(StandardCharsets.UTF_8));
+                this.userOutput.flush();
+            } catch (IOException ignored) {}
+            System.exit(1);
+        }
     }
 
     public String getHost() {
