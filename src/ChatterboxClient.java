@@ -246,9 +246,46 @@ public class ChatterboxClient {
      * @throws IllegalArgumentException for bad credentials / server rejection
      */
     public void authenticate() throws IOException, IllegalArgumentException {
-        throw new UnsupportedOperationException("Authenticate not yet implemented. Implement authenticate() and remove this exception!");
+        // throw new UnsupportedOperationException("Authenticate not yet implemented. Implement authenticate() and remove this exception!");
         // Hint: use the username/password instance variables, DO NOT READ FROM userInput
         // send messages using serverWriter (don't forget to flush!)
+
+        // step 1 Read and display the server's initial prompt line (if any)
+        // to userOutput.
+        String line;
+        if ((line = serverReader.readLine()) != null) 
+        {
+            userOutput.write((line + "\n").getBytes(StandardCharsets.UTF_8));
+            userOutput.flush();
+        }
+
+        //step 2 Send ONE LINE containing:
+        //      username + " " + password + "\n"
+        serverWriter.write(username + " " + password + "\n");
+        serverWriter.flush();
+        
+        // String response;
+        // try ((response = serverReader.readLine()) != null) 
+        // {
+            
+        // } catch (IOException e) {
+        //     throw new IOException("hi");
+        // }
+        //step 3: Read ONE response line from serverReader
+        String response = serverReader.readLine();
+
+        // Step 4: If the response indicates failure, throw IllegalArgumentException with that response text.
+        String expected = "Welcome to the server, " + username + "!";
+        if (!response.equals(expected)) {
+            // userOutput.write(("this is the response that does not match the thinggy: " + response + "\n").getBytes(StandardCharsets.UTF_8));
+            // userOutput.flush();
+            throw new IllegalArgumentException("this is the response that does not match the thinggy:" + response);
+        // Step 5: If success, print the welcome line(s) to userOutput and return.
+        } else if (response.equals(expected)) {
+            userOutput.write((response + "\n").getBytes(StandardCharsets.UTF_8));
+            userOutput.flush();
+        }
+
     }
 
     /**
