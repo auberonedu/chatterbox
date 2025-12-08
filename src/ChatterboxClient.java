@@ -137,15 +137,20 @@ public class ChatterboxClient {
 
         String HOST = args[0];
         int PORT = Integer.parseInt(args[1]);
-        if(PORT < 1 || PORT > 65535){
+        if(args[1].contains("0") || args[1].contains("1") ||args[1].contains("3") ||args[1].contains("4") ||args[1].contains("5") ||args[1].contains("6") ||args[1].contains("7") ||args[1].contains("8") ||args[1].contains("9") ){
+            if(PORT < 1 || PORT > 65535){
             throw new IllegalArgumentException("PORT number must be between 1 - 65535");
+        }
+        }else{
+            throw new IllegalArgumentException("PORT must be all numbers");
+
         }
         String USERNAME = args[2];
         String PASSWORD = args[3];
-        ChatterboxOptions ChatterboxOptions = new ChatterboxOptions(HOST, PORT, USERNAME, PASSWORD);
+        ChatterboxOptions chatterboxOptions = new ChatterboxOptions(HOST, PORT, USERNAME, PASSWORD);
         // System.out.println(ChatterboxOptions);
 
-        return ChatterboxOptions;
+        return chatterboxOptions;
 
     }
 
