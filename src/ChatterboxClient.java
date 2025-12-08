@@ -1,8 +1,12 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
@@ -156,7 +160,7 @@ public class ChatterboxClient {
         //3. check if the Parse is in range
         if(port < 0 || port > 65535) {
             //4. Else throw
-            throw new IllegalArgumentException("Port is not between 0 and 65000");
+            throw new IllegalArgumentException("Port is not between 0 and 65535");
         }
 
         // TODO: Return new chatterboxoptions
@@ -203,11 +207,31 @@ public class ChatterboxClient {
      *
      * @throws IOException if the socket cannot be opened
      */
+
+    // propagates the IOException
     public void connect() throws IOException {
-        throw new UnsupportedOperationException("Connect not yet implemented. Implement connect() and remove this exception!");
+        //throw new UnsupportedOperationException("Connect not yet implemented. Implement connect() and remove this exception!");
+
+        //From Class project
+        //InputStream inputStream = new FileInputStream(filename);
+        //InputStreamReader inputStreamReader = new InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8);
+        //BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+        // Create socket to host:port
+        Socket socket = new Socket(this.host, this.port);
+
+        //serverReader
+        InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream(), java.nio.charset.StandardCharsets.UTF_8);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+
+        //serverWriter
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(socket.getOutputStream(), java.nio.charset.StandardCharsets.UTF_8);
+        BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
 
         // Make sure to have this.serverReader and this.serverWriter set by the end of this method!
         // hint: get the streams from the sockets, use those to create the InputStreamReader/OutputStreamWriter and the BufferedReader/BufferedWriter
+        this.serverReader = bufferedReader;
+        this.serverWriter = bufferedWriter;
     }
 
     /**
