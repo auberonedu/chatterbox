@@ -258,10 +258,16 @@ public class ChatterboxClient {
         // Hint: use the username/password instance variables, DO NOT READ FROM userInput
         // send messages using serverWriter (don't forget to flush!)
 
+        // OutputStreamWriter outputStreamWriter = new OutputStreamWriter(socket.getOutputStream(), java.nio.charset.StandardCharsets.UTF_8);
+        // BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+
         String initial = serverReader.readLine();
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(userOutput, java.nio.charset.StandardCharsets.UTF_8);
+        BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
         //servers initial prompt line
         if(initial != null){
-            System.out.println(initial);
+            bufferedWriter.write(initial);
+            bufferedWriter.flush();
         }
 
         //send one line user +""+ password + "\n"
@@ -271,10 +277,12 @@ public class ChatterboxClient {
         //response text
         String response = serverReader.readLine();
 
+
         if(response == null){
             throw new IllegalArgumentException(response);
         } else {
-            System.out.println(response);
+            bufferedWriter.write(response + "\n");
+            bufferedWriter.flush();
         }
     }
 
@@ -291,7 +299,17 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        //throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+
+        // Prior Class code 
+        // Thread clientThread = new Thread(() -> handleClient(socket));
+        // clientThread.start();
+
+        Thread incoming = new Thread(() -> printIncomingChats());
+        Thread outgoing = new Thread(() -> sendOutgoingChats());
+
+        incoming.start();
+        outgoing.start();
     }
 
     /**
@@ -311,6 +329,13 @@ public class ChatterboxClient {
     public void printIncomingChats() {
         // Listen on serverReader
         // Write to userOutput, NOT System.out
+        /*try {
+
+        } catch (IOException e) {
+            userInput.println("lost connection");
+            userOutput.flush();
+        }*/
+        
     }
 
     /**
