@@ -1,4 +1,5 @@
 # chatterbox
+# I GET IT NOW
 
 An assignment to explore sockets and multithreading. MAKE SURE TO COMMIT AND PUSH AS YOU GO. YOU SHOULD BE MAKING MULTIPLE COMMITS PER WAVE.
 
