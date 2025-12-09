@@ -3,3 +3,6 @@ baya password
 connie hellothere
 priya correctbatteryhorsestapler
 xinru trumpet
+
+javac src/*.java && java -cp src ChatterboxClient localhost 12345 baya password
+javac src/*.java && java -cp src ChatterboxClient localhost 12345 sharon abc123

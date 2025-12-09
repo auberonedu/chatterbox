@@ -238,15 +238,25 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        Thread thread1 = new Thread(() -> {
+        Thread printChats = new Thread(() -> {
             try {
                 printIncomingChats();
             } catch (IOException e) {
                 System.exit(1);
             }
         });
-        
-        throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        Thread sendChats = new Thread(() -> {
+            try {
+                sendOutgoingChats();
+            } catch (IOException e) {
+                System.err.println("Disconnected");
+            } finally {
+                System.exit(1);
+            }
+        });
+
+        printChats.start();
+        sendChats.start();
     }
 
     /**
@@ -291,11 +301,22 @@ public class ChatterboxClient {
      * - If writing fails (IOException), the connection is gone:
      *   print a message to userOutput and exit.
      */
-    public void sendOutgoingChats() {
+    public void sendOutgoingChats() throws IOException{
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
-        while(userInput.hasNext())
+        String line;
+        while(true){
+            line = userInput.nextLine();
+            try{
+                serverWriter.write(line);
+                serverWriter.newLine();
+                serverWriter.flush();
+            }catch (IOException e){
+                System.err.println(e);
+                System.exit(1);
+            }
+        }
     }
 
     public String getHost() {
