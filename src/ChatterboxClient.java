@@ -2,9 +2,12 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
+import java.net.Socket;
 
 /**
  * A simple command-line chat client for the Chatterbox server.
@@ -127,7 +130,27 @@ public class ChatterboxClient {
     public static ChatterboxOptions parseArgs(String[] args) throws IllegalArgumentException {
         // TODO: read args in the required order and return new ChatterboxOptions(host, port, username, password)
         // Remove this exception
-        throw new UnsupportedOperationException("Argument parsing not yet implemented. Implement parseArgs and remove this exception");
+
+        if (args.length != 4) {
+            throw new IllegalArgumentException("Four arguments required: HOST PORT USERNAME PASSWORD");
+        }
+
+        String host = args[0];
+        
+        int port; 
+        try { 
+            port = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Error: PORT must be of type integer, got: '" + args[1] + "'");
+        }
+        if (port < 1 || port > 65535) {
+            throw new IllegalArgumentException("Error: PORT number must be between valid range of 1-65535");
+        }
+
+        String username = args[2];
+        String password = args[3];
+
+        return new ChatterboxOptions(host, port, username, password);
     }
 
     /**
@@ -145,9 +168,10 @@ public class ChatterboxClient {
     public ChatterboxClient(ChatterboxOptions options, InputStream userInput, OutputStream userOutput) {
         this.userInput = new Scanner(userInput, StandardCharsets.UTF_8);
         this.userOutput = userOutput;
-
-        throw new UnsupportedOperationException("Constructor not yet implemented. Implement ChatterboxClient constructor and remove this exception");
-        // TODO: copy options.getHost(), getPort(), getUsername(), getPassword() into fields
+        this.host = options.getHost();
+        this.port = options.getPort();
+        this.username = options.getUsername();
+        this.password = options.getPassword();
     }
 
     /**
@@ -164,11 +188,25 @@ public class ChatterboxClient {
      * @throws IOException if the socket cannot be opened
      */
     public void connect() throws IOException {
-        throw new UnsupportedOperationException("Connect not yet implemented. Implement connect() and remove this exception!");
+        Socket socket = new Socket(host, port);
+        InputStream inputStream = socket.getInputStream();
+        OutputStream outputStream = socket.getOutputStream();
+        
+        // Setup serverReader
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        // finally asign the newly created bufferedReader object to the serverReader instance field
+        this.serverReader = bufferedReader;
+
+        // Set up serverWriter
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+        BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+        // finally asign the newly created bufferedWriter object to the serverWriter instance field
+        this.serverWriter = bufferedWriter;
+        }
 
         // Make sure to have this.serverReader and this.serverWriter set by the end of this method!
         // hint: get the streams from the sockets, use those to create the InputStreamReader/OutputStreamWriter and the BufferedReader/BufferedWriter
-    }
 
     /**
      * Authenticate with the server using the simple protocol.
@@ -191,9 +229,39 @@ public class ChatterboxClient {
      * @throws IllegalArgumentException for bad credentials / server rejection
      */
     public void authenticate() throws IOException, IllegalArgumentException {
-        throw new UnsupportedOperationException("Authenticate not yet implemented. Implement authenticate() and remove this exception!");
-        // Hint: use the username/password instance variables, DO NOT READ FROM userInput
+                // Hint: use the username/password instance variables, DO NOT READ FROM userInput
         // send messages using serverWriter (don't forget to flush!)
+
+
+        // Read the initial prompt from the server
+        String prompt = serverReader.readLine();
+        if (prompt != null) {
+            userOutput.write((prompt + "\n").getBytes(StandardCharsets.UTF_8));
+            userOutput.flush();
+        }
+
+
+        // Pass username and password credentials to the server
+        String credentials = username + " " + password + "\n";
+        serverWriter.write(credentials);
+        serverWriter.flush();
+       
+        // Read the server's response to authentication attempt
+        String response = serverReader.readLine();
+        if (response == null) {
+            throw new IllegalArgumentException("Server Error: Connection closed without response.");
+        } else if (response.startsWith("Welcome to the server")) {
+            userOutput.write((response + "\n").getBytes(StandardCharsets.UTF_8));
+            userOutput.flush();
+            // Display chat rules message
+            String chatRulesMessage = serverReader.readLine();
+            if (chatRulesMessage != null) {
+                userOutput.write((chatRulesMessage + "\n").getBytes(StandardCharsets.UTF_8));
+                userOutput.flush();
+            }
+        } else if (response.startsWith("Authentication failed")) {
+            throw new IllegalArgumentException("Invalid Credentials Error: " + response);                
+        }          
     }
 
     /**
@@ -208,10 +276,35 @@ public class ChatterboxClient {
      *
      * @throws IOException
      */
-    public void streamChat() throws IOException {
-        throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
-    }
+    public void streamChat() throws IOException { // throw IOException to Main if thread creation fails
+        Thread incomingChatThread = new Thread(() -> {
+            try {    
+                printIncomingChats();
+                System.out.println("You have exited the chat. Goodbye!");
+            } catch (IOException e) {
+                    System.err.println("Failed to received incoming messages from the server.");
+                    System.err.println("Error: " + e.getMessage());
+                    System.err.println("Exiting application...");
+                    System.exit(1);
+                }
+            });
 
+        Thread outgoingChatThread = new Thread(() -> {
+            try {
+                sendOutgoingChats();
+                System.out.println("You have exited the chat. Goodbye!");    
+            } catch (IOException e) {
+                    System.err.println("Failed to send outgoing messages to the server.");
+                    System.err.println("Error: " + e.getMessage());
+                    System.err.println("Exiting application...");
+                    System.exit(1);
+            }
+        });
+
+        incomingChatThread.start();
+        outgoingChatThread.start();
+    }
+    
     /**
      * Continuously read messages from the server and print them to the user.
      *
@@ -226,10 +319,26 @@ public class ChatterboxClient {
      * - If an IOException happens, treat it as disconnect:
      *   print a message to userOutput and exit.
      */
-    public void printIncomingChats() {
+    public void printIncomingChats() throws IOException {
         // Listen on serverReader
-        // Write to userOutput, NOT System.out
+        // Write to userOutput, NOT System.out   
+            String line;
+            try {
+                while ((line = serverReader.readLine()) != null) {
+                    userOutput.write((line + "\n").getBytes(StandardCharsets.UTF_8));
+                    userOutput.flush();
+                    }
+                } catch (IOException e) {
+                    try {
+                        // Handle null line if server disconnects
+                        userOutput.write("Server disconnected. Exiting...\n".getBytes(StandardCharsets.UTF_8));
+                        userOutput.flush();
+                    } catch (IOException ignored) {} // ignore if application fails to write to userOutput during disconnection
+                    
+                throw new IOException("Connection lost while receiving message from server", e);
+        }
     }
+
 
     /**
      * Continuously read user-typed messages and send them to the server.
@@ -243,11 +352,30 @@ public class ChatterboxClient {
      * - If writing fails (IOException), the connection is gone:
      *   print a message to userOutput and exit.
      */
-    public void sendOutgoingChats() {
+    public void sendOutgoingChats() throws IOException {
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
+        
+        while (userInput.hasNextLine()) {
+            String userMessageString = userInput.nextLine();
+            try {
+                // Converts string into bytes on the BufferedWriter's internal buffer in RAM
+                serverWriter.write(userMessageString + "\n");
+                // Empty buffer and send bytes to the Network Interface Card to initiate TCP/IP transmission
+                serverWriter.flush();
+            } catch (IOException e) {
+                try {
+                    userOutput.write(("Error: Connection disconnected. Unable to send messages: " + e.getMessage() + "\n").getBytes(StandardCharsets.UTF_8));
+                    userOutput.flush();
+                } catch (IOException ignored) {} // ignore if application fails to write to userOutput during disconnection
+                
+                // Re-throw to let streamChat() handle shutdown and cleanup of thread
+                throw new IOException("Connection lost while sending message to server", e);
+            }
+        }
     }
+
 
     public String getHost() {
         return host;
@@ -271,3 +399,6 @@ public class ChatterboxClient {
                 + "]";
     }
 }
+    
+
+
