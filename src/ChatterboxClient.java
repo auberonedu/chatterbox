@@ -228,6 +228,7 @@ public class ChatterboxClient {
         }
         else {
             userWriter.write(response);
+            userWriter.newLine();
             userWriter.flush();
             return;
         }
@@ -246,7 +247,7 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        printIncomingChats();
     }
 
     /**
@@ -263,7 +264,7 @@ public class ChatterboxClient {
      * - If an IOException happens, treat it as disconnect:
      *   print a message to userOutput and exit.
      */
-    public void printIncomingChats(){
+    public void printIncomingChats() throws IOException{
         // Listen on serverReader
         // Write to userOutput, NOT System.out
         String line;
