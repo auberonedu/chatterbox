@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -212,7 +210,9 @@ public class ChatterboxClient {
         this.serverWriter = bufferedWriter;
 
          } catch (IOException e) {
-            System.out.println(e.getMessage());
+            userOutput.write((e.getMessage()).getBytes(StandardCharsets.UTF_8));
+            userOutput.write(("\n").getBytes(StandardCharsets.UTF_8));
+            userOutput.flush();
         }
 
 
@@ -248,7 +248,9 @@ public class ChatterboxClient {
         // send messages using serverWriter (don't forget to flush!)
 
         String line = serverReader.readLine();
-        System.out.println(line);
+        userOutput.write(line.getBytes(StandardCharsets.UTF_8));
+        userOutput.write(("\n").getBytes(StandardCharsets.UTF_8));
+        userOutput.flush();
         
         String line2 = username + " " + password;
 
@@ -257,10 +259,14 @@ public class ChatterboxClient {
         serverWriter.flush();
 
         try  {
-            System.out.println(serverReader.readLine());
+            userOutput.write(serverReader.readLine().getBytes(StandardCharsets.UTF_8));
+            userOutput.write(("\n").getBytes(StandardCharsets.UTF_8));
+            userOutput.flush();
             return;
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            userOutput.write((e.getMessage()).getBytes(StandardCharsets.UTF_8));
+            userOutput.write(("\n").getBytes(StandardCharsets.UTF_8));
+            userOutput.flush();
             throw new IllegalArgumentException();
         }
 
@@ -309,6 +315,14 @@ public class ChatterboxClient {
         // Listen on serverReader
         // Write to userOutput, NOT System.out
 
+
+
+        /////////////////////////////////////////////////////////
+        /// I missed the last class. After talking to another student i had to look up how to print to the userOutput. 
+        /// https://www.w3schools.com/java/ref_string_getbytes.asp
+        /// I kinda figured out the rest of it with errors
+        /// //////////////////////////////////////////////////////////
+
         
         
         while(true){
@@ -316,14 +330,24 @@ public class ChatterboxClient {
             try {
                 String line = serverReader.readLine();;
                 if(line == null){
-                    System.out.println("line is empty... nothing to read");
+                    userOutput.write(("line is empty... nothing to read").getBytes(StandardCharsets.UTF_8));
+                    userOutput.flush();
 
                 }else{
-                    System.out.println(line);
+                    userOutput.write((line + "\n").getBytes(StandardCharsets.UTF_8));
+                    userOutput.flush();
                       
                 }
             } catch (IOException e) {
-                System.out.println(e.getMessage());
+                    try {
+                        userOutput.write((e.getMessage()).getBytes(StandardCharsets.UTF_8));
+                        userOutput.write(("\n").getBytes(StandardCharsets.UTF_8));
+                        userOutput.flush();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                        return;
+                    }
+
                 return;
             }
         }
@@ -340,8 +364,9 @@ public class ChatterboxClient {
      * Notes:
      * - If writing fails (IOException), the connection is gone:
      *   print a message to userOutput and exit.
+     * 
      */
-    public void sendOutgoingChats() {
+    public void sendOutgoingChats()  {
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
@@ -352,9 +377,13 @@ public class ChatterboxClient {
                 serverWriter.newLine();
                 serverWriter.flush();
             } catch (IOException e) {
-                System.out.println(e.getMessage());
-                System.out.println("Message failed....");
-                return;
+                try {
+                    userOutput.write((e.getMessage()).getBytes(StandardCharsets.UTF_8));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                    return;
+                }
+                
             }
         }
     }
