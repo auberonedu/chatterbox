@@ -231,9 +231,6 @@ public class ChatterboxClient {
             userWriter.flush();
             return;
         }
-
-        // Hint: use the username/password instance variables, DO NOT READ FROM userInput
-        // send messages using serverWriter (don't forget to flush!)
     }
 
     /**
@@ -266,9 +263,24 @@ public class ChatterboxClient {
      * - If an IOException happens, treat it as disconnect:
      *   print a message to userOutput and exit.
      */
-    public void printIncomingChats() {
+    public void printIncomingChats(){
         // Listen on serverReader
         // Write to userOutput, NOT System.out
+        String line;
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(userOutput, java.nio.charset.StandardCharsets.UTF_8);
+        BufferedWriter userWriter = new BufferedWriter(outputStreamWriter);
+
+        try {
+            while((line=serverReader.readLine()) !=null) {
+                userWriter.write(line);
+                userWriter.newLine();
+                userWriter.flush();
+            }
+        }
+        catch (IOException e) {
+            userWriter.write("IO exception: " + e);
+            return;
+        }
     }
 
     /**
