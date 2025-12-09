@@ -4,7 +4,7 @@ An assignment to explore sockets and multithreading. MAKE SURE TO COMMIT AND PUS
 
 DO NOT USE AI FOR THIS PROJECT
 
-## Wave 1: Understand
+## Wave 1: Understand-------------Completed
 1. Take a moment to read through the ChatterboxClient.java file. Note what is currently implemented, and what you will be expected to implement.
 1. Try running ChatterboxServer using the example command in ChatterboxServer.java. You do not need to understand everything in this file, but you will be using the server to validate that your client is working! If working, it will talk about setting up, then every 10 seconds show a heartbeat message. It will take about 10 seconds for the first heartbeat to show up.
 1. Try running ChatterboxClient using the command in the file. It will tell you that argument parsing is not yet implemented (because you haven't written it yet!) This is expected. You will be resolving this in the next wave.
@@ -55,3 +55,4 @@ DO NOT USE AI FOR THIS PROJECT
 ## Wave 9: (Optional) Attack
 1. You will be emailed a separate server and set of usernames / passwords that you are allowed to attack. If you are able to take it down, you will receive extra credit. You are allowed to use AI to help you with your attack, but ONLY AFTER YOU HAVE ALREADY MADE A PR for your project. Do any attack commits for a malicious client in a separate branch.
 
+ 
