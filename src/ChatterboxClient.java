@@ -266,8 +266,8 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        Thread incoming = new Thread(this::printIncomingChats);
-        Thread outgoing = new Thread(this::sendOutgoingChats);
+        Thread incoming = new Thread(() -> printIncomingChats());
+        Thread outgoing = new Thread(() -> sendOutgoingChats());
 
         incoming.start();
         outgoing.start();
