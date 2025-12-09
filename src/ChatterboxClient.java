@@ -346,20 +346,16 @@ public class ChatterboxClient {
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(userOutput, java.nio.charset.StandardCharsets.UTF_8);
         BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
         
-        try {
-            while(true){
-                String line = serverReader.readLine();
+        while(true){
+            String line = serverReader.readLine();
 
-                if(line == null){
-                    userOutput.write("disconnected".getBytes());
-                    userOutput.flush();
-                    return;
-                }
-                userOutput.write((line + "\n").getBytes());
+            if(line == null){
+                userOutput.write("disconnected".getBytes());
                 userOutput.flush();
+                return;
             }
-        } catch (IOException e) {
-            throw new IOException(e);
+            userOutput.write((line + "\n").getBytes());
+            userOutput.flush();
         }
     }
 
