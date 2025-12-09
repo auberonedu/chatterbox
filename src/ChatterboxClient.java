@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 
-// WORKING ON FILE NOW: REMOVE LATER -- REMEMBER TO REMOVE THIS LINE: 
+
 
 
 /**
@@ -40,12 +40,12 @@ public class ChatterboxClient {
     private String password;
 
     // Streams for user I/O
-    private Scanner userInput;
-    private OutputStream userOutput;
+    private Scanner userInput; // for reading user input
+    private OutputStream userOutput; // for printing to user
 
     // Readers/Writers for server I/O (set up in connect())
-    private BufferedReader serverReader;
-    private BufferedWriter serverWriter;
+    private BufferedReader serverReader; // for reading from the server
+    private BufferedWriter serverWriter; // for writing to the server
 
     /**
      * Program entry.
@@ -132,6 +132,9 @@ public class ChatterboxClient {
      * @return a fully populated ChatterboxOptions
      * @throws IllegalArgumentException on any bad/missing input
      */
+
+
+    //  This is Wave 1 --> for the command arg lines
     public static ChatterboxOptions parseArgs(String[] args) throws IllegalArgumentException {
         // TODO: read args in the required order and return new ChatterboxOptions(host, port, username, password)
         // Remove this exception
@@ -149,7 +152,7 @@ public class ChatterboxClient {
     try {
         port = Integer.parseInt(portString);
     } catch (NumberFormatException e) {
-        throw new IllegalArgumentException("Port must be a valid integer.");
+        throw new IllegalArgumentException("The port has to be a valid integer.");
     }
 
     if (port < 1 || port > 65535) {
@@ -159,7 +162,7 @@ public class ChatterboxClient {
     return new ChatterboxOptions(host, port, username, password);
 }
 
-    
+// this is WAVE 2 --> Adding constructors    
 
     /**
      * Construct a ChatterboxClient from already-parsed options and user streams.
