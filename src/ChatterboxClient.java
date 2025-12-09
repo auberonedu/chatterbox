@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.net.ProtocolException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -271,20 +270,21 @@ public class ChatterboxClient {
     public void printIncomingChats() {
         // Listen on serverReader
         // Write to userOutput, NOT System.out
-        try {
-            String line;
-            while ((line = serverReader.readLine()) != null) {
-                userOutput.write((line + "\n").getBytes());
-                userOutput.flush();
-            }
-            userOutput.write(("disconnected").getBytes());
-            userOutput.flush();
-
-        } catch (IOException e) {
+        while(true) {
             try {
+                String line;
+                if ((line = serverReader.readLine()) != null) {
+                    userOutput.write((line + "\n").getBytes());
+                    userOutput.flush();
+                } else {
                 userOutput.write(("disconnected").getBytes());
-            } catch (IOException ignored) {
-
+                userOutput.flush();
+                }
+            } catch (IOException e) {
+                try {
+                    userOutput.write(("disconnected").getBytes());
+                } catch (IOException ignored) {
+                }
             }
         }
 
@@ -317,7 +317,8 @@ public class ChatterboxClient {
         } catch(IOException e) {
             try {
                 userOutput.write(("The connection is gone").getBytes());
-            } catch(IOException ignore) {}
+            } catch(IOException ignore) {
+            }
         }
     }
 
