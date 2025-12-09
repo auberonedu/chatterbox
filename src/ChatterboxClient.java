@@ -270,7 +270,7 @@ public class ChatterboxClient {
     //   printIncomingChats();
           Thread thread1 = new Thread(() -> printIncomingChats());
          Thread thread2 = new Thread(() -> sendOutgoingChats());
-
+        // multiple threading;
           thread1.start();
           thread2.start();
 
