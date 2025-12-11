@@ -290,7 +290,14 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        printIncomingChats();
+
+        Thread incomingChats = new Thread(() -> printIncomingChats());
+        Thread outGoingChats = new Thread(() -> sendOutgoingChats());
+
+        incomingChats.start();
+        outGoingChats.start();
+       
+       
     }
 
     /**
@@ -352,6 +359,25 @@ public class ChatterboxClient {
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
+        OutputStream outputStream = userOutput;
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+        BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+        try {
+            while(userInput.hasNextLine()){
+                String message = userInput.nextLine();
+                serverWriter.write(message);
+                serverWriter.newLine();
+                serverWriter.flush();
+            }
+        } catch ( IOException e){
+            try{
+                bufferedWriter.write("Writing failed");
+                bufferedWriter.newLine();
+                bufferedWriter.flush();
+            } catch (IOException Ignore){}
+            System.exit(1);
+        }
+       
     }
 
     public String getHost() {
