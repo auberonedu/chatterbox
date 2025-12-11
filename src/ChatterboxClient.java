@@ -2,7 +2,10 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
@@ -127,7 +130,15 @@ public class ChatterboxClient {
     public static ChatterboxOptions parseArgs(String[] args) throws IllegalArgumentException {
         // TODO: read args in the required order and return new ChatterboxOptions(host, port, username, password)
         // Remove this exception
-        throw new UnsupportedOperationException("Argument parsing not yet implemented. Implement parseArgs and remove this exception");
+        if(args.length != 4){
+            throw new IllegalArgumentException("Arguments not equal to 4.");
+        }
+
+        ChatterboxOptions chatterNew = new ChatterboxOptions(args[0], Integer.parseInt(args[1]), args[2], args[3]);
+
+        return chatterNew;
+
+        // throw new UnsupportedOperationException("Argument parsing not yet implemented. Implement parseArgs and remove this exception");
     }
 
     /**
@@ -146,7 +157,14 @@ public class ChatterboxClient {
         this.userInput = new Scanner(userInput, StandardCharsets.UTF_8);
         this.userOutput = userOutput;
 
-        throw new UnsupportedOperationException("Constructor not yet implemented. Implement ChatterboxClient constructor and remove this exception");
+        this.host = options.getHost();
+        this.port = options.getPort();
+        this.password = options.getPassword();
+        this.username = options.getUsername();
+
+        
+
+        // throw new UnsupportedOperationException("Constructor not yet implemented. Implement ChatterboxClient constructor and remove this exception");
         // TODO: copy options.getHost(), getPort(), getUsername(), getPassword() into fields
     }
 
@@ -164,7 +182,17 @@ public class ChatterboxClient {
      * @throws IOException if the socket cannot be opened
      */
     public void connect() throws IOException {
-        throw new UnsupportedOperationException("Connect not yet implemented. Implement connect() and remove this exception!");
+        Socket socket = new Socket(this.host, this.port);
+        InputStream inputStream = socket.getInputStream();
+        OutputStream outputStream = socket.getOutputStream();
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, java.nio.charset.StandardCharsets.UTF_8);
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+        BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+
+        this.serverReader = bufferedReader;
+        this.serverWriter = bufferedWriter;
+        // throw new UnsupportedOperationException("Connect not yet implemented. Implement connect() and remove this exception!");
 
         // Make sure to have this.serverReader and this.serverWriter set by the end of this method!
         // hint: get the streams from the sockets, use those to create the InputStreamReader/OutputStreamWriter and the BufferedReader/BufferedWriter
@@ -190,8 +218,31 @@ public class ChatterboxClient {
      * @throws IOException for network errors
      * @throws IllegalArgumentException for bad credentials / server rejection
      */
+
     public void authenticate() throws IOException, IllegalArgumentException {
-        throw new UnsupportedOperationException("Authenticate not yet implemented. Implement authenticate() and remove this exception!");
+        // throw new UnsupportedOperationException("Authenticate not yet implemented. Implement authenticate() and remove this exception!");
+            // Check if servers newest line is present to continue
+            String start = serverReader.readLine();
+            if (start != null) {
+                userOutput.write((start + "\n").getBytes(StandardCharsets.UTF_8));
+                userOutput.flush();
+            }
+
+            // Login
+            String login = username + " " + password + "\n";
+            serverWriter.write(login);
+            serverWriter.flush();
+
+            // Auto login (Idea from classmates, credit to them)
+            userOutput.write(login.getBytes(StandardCharsets.UTF_8));
+            userOutput.flush();
+
+            // Authenticate we got in
+            String response = serverReader.readLine();
+            if (response == null) {
+                throw new IllegalArgumentException(response);
+            }
+
         // Hint: use the username/password instance variables, DO NOT READ FROM userInput
         // send messages using serverWriter (don't forget to flush!)
     }
@@ -209,7 +260,14 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        // throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        
+        Thread printThread = new Thread(() -> printIncomingChats());
+        Thread sendChatThread = new Thread(() -> sendOutgoingChats());
+
+        printThread.start();
+        sendChatThread.start();
+    
     }
 
     /**
@@ -229,6 +287,20 @@ public class ChatterboxClient {
     public void printIncomingChats() {
         // Listen on serverReader
         // Write to userOutput, NOT System.out
+        try {
+            String incomingMsg;
+            while ((incomingMsg = serverReader.readLine()) != null) {
+                userOutput.write((incomingMsg + "\n").getBytes(StandardCharsets.UTF_8));
+                userOutput.flush();
+            }      
+
+            } catch (IOException exception) {
+            try {
+                userOutput.write("Dced\n".getBytes(StandardCharsets.UTF_8));
+            } catch (IOException exception1) {
+                System.out.println("Dced");
+            }
+        }
     }
 
     /**
@@ -247,6 +319,20 @@ public class ChatterboxClient {
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
+
+        while(true){
+            try {
+                String userText = userInput.nextLine();
+                serverWriter.write((userText + "\n"));
+                serverWriter.flush();
+            } catch (IOException exception) {
+                try {
+                    userOutput.write("Dced\n".getBytes(StandardCharsets.UTF_8));
+                    userOutput.flush();
+                } catch (IOException exception1) {
+                }
+            }
+        }
     }
 
     public String getHost() {
