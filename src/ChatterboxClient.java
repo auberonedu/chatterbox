@@ -245,16 +245,35 @@ public class ChatterboxClient {
         // send messages using serverWriter (don't forget to flush!)
         OutputStream outputStream = userOutput;
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8);
-        BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+        BufferedWriter outputWriter = new BufferedWriter(outputStreamWriter);
 
-        serverWriter.write(username + " " + password + "\n");
-        serverWriter.flush();
-     
-        String response = serverReader.readLine();
-        bufferedWriter.write(response + "\n");
-        bufferedWriter.flush();
+        String line = serverReader.readLine();
 
+        if(line != null){
+            outputWriter.write(line);
+            outputWriter.newLine();
+            outputWriter.flush();
+        }
        
+        serverWriter.write(username + " " + password);
+        serverWriter.newLine();
+        serverWriter.flush();
+
+        String response = serverReader.readLine();
+
+        if (response == null){
+            throw new IllegalArgumentException("bad credentials");
+        }
+
+        if (!response.toLowerCase().contains("welcome")) {
+            throw new IllegalArgumentException("server rejection");
+        }
+        
+        if (response != null) {
+            outputWriter.write(response);
+            outputWriter.newLine();
+            outputWriter.flush();
+        }
         
          
     }
