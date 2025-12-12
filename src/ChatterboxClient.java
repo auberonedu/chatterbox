@@ -147,7 +147,7 @@ public class ChatterboxClient {
         int parsedPort;
 
         try {
-            // Initizlize parsedPort by converting it into a INT
+            // Initialize parsedPort by converting it into a INT
             parsedPort = Integer.parseInt(PORT);
 
             // Check to see if the port is valid, between 1..65535
@@ -212,7 +212,7 @@ public class ChatterboxClient {
         BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
         this.serverReader = bufferedReader;
 
-        // OutputStream (chars) -> OutputStreamWriter (bytes) -> BufferedWriter
+        // OutputStream (Raw bytes) -> OutputStreamWriter (decodes bytes to chars) -> BufferedWriter(reading groups of chars, provides methods)
         OutputStream outputStream = socket.getOutputStream();
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8);
         BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
@@ -245,32 +245,40 @@ public class ChatterboxClient {
         // throw new UnsupportedOperationException("Authenticate not yet implemented. Implement authenticate() and remove this exception!");
         // Hint: use the username/password instance variables, DO NOT READ FROM userInput
         // send messages using serverWriter (don't forget to flush!)
+
+        // Set up user output
         OutputStream outputStream = userOutput;
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8);
         BufferedWriter outputWriter = new BufferedWriter(outputStreamWriter);
 
+        // Read the first line
         String line = serverReader.readLine();
 
+        // Check to see if its not null then print out the initial line
         if(line != null){
             outputWriter.write(line);
             outputWriter.newLine();
             outputWriter.flush();
         }
-       
+        
+        // Write the username to serverWriter, could also use serverWriter.write(username + " " + password + "\n");
         serverWriter.write(username + " " + password);
         serverWriter.newLine();
         serverWriter.flush();
 
+        // Read the response from the server after sending the user name and password
         String response = serverReader.readLine();
 
+        // Null checks to see if the response exists and contains the actual welcome greeting
         if (response == null){
-            throw new IllegalArgumentException("bad credentials");
+            throw new IllegalArgumentException(response);
         }
 
         if (!response.toLowerCase().contains("welcome")) {
-            throw new IllegalArgumentException("server rejection");
+            throw new IllegalArgumentException(response);
         }
 
+        // If checks pass write the response to the client
         outputWriter.write(response);
         outputWriter.newLine();
         outputWriter.flush();
@@ -291,9 +299,11 @@ public class ChatterboxClient {
      */
     public void streamChat() throws IOException {
 
+        //Create threads for both incomingChats and outGoingChats
         Thread incomingChats = new Thread(() -> printIncomingChats());
         Thread outGoingChats = new Thread(() -> sendOutgoingChats());
 
+        // Start the threads
         incomingChats.start();
         outGoingChats.start();
        
@@ -317,29 +327,40 @@ public class ChatterboxClient {
     public void printIncomingChats() {
         // Listen on serverReader
         // Write to userOutput, NOT System.
+
+        // Create the output stream
         OutputStream outputStream = userOutput;
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, java.nio.charset.StandardCharsets.UTF_8);
         BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
 
+        
+        /*
+         * Another alternative to writing this out is 
+         * BufferedWriter bufferedWriter = new BufferedWriter(
+         *                      new OutputStreamWriter(userOutput, java.nio.charset.StandardCharsets.UTF_8));
+         */
+
+        // Declare a variable called line
         String line;
         try{
+            // Keep looping through the serverReader, print out lines example "Heart Beat" or msg
             while((line = serverReader.readLine())!= null){
                 bufferedWriter.write(line);
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
             }
+            // After disconnect print out message.
             bufferedWriter.write("server disconnected");
             bufferedWriter.newLine();
             bufferedWriter.flush();
-            System.exit(1);
+            System.exit(0);
         } catch (IOException e) {
             try{
                 bufferedWriter.write("server disconnected");
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
-            } catch(IOException Ignore) {}
-            
-            System.exit(1);
+            } catch(IOException ignore) {}
+            System.exit(0);
         }
     }
 
@@ -359,11 +380,16 @@ public class ChatterboxClient {
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
+
+        // Create the output stream
         OutputStream outputStream = userOutput;
         OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
         BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+
+        // Infinite loop using .hasNextLine()
         try {
             while(userInput.hasNextLine()){
+                // Store the users message 
                 String message = userInput.nextLine();
                 serverWriter.write(message);
                 serverWriter.newLine();
@@ -374,8 +400,8 @@ public class ChatterboxClient {
                 bufferedWriter.write("Writing failed");
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
-            } catch (IOException Ignore){}
-            System.exit(1);
+            } catch (IOException ignore){}
+            System.exit(0);
         }
        
     }
